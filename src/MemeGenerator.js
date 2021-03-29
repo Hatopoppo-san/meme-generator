@@ -1,74 +1,54 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
-class MemeGenerator extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      topText: "",
-      bottomText: "",
-      randomImg: "http://i.imgflip.com/1bij.jpg",
-      allMemeImg: [],
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
+const MemeGenerator = () => {
+  const [topText, setTopText] = useState("");
+  const [bottomText, setBottomText] = useState("");
+  const [randomImg, setRandomImg] = useState("http://i.imgflip.com/1bij.jpg");
+  const [allMemeImg, setAllMemeImg] = useState([]);
 
-  componentDidMount() {
+  useEffect(() => {
     fetch("https://api.imgflip.com/get_memes")
       .then((response) => response.json())
       .then((response) => {
         const { memes } = response.data;
-        this.setState({
-          allMemeImg: memes,
-        });
+        setAllMemeImg(memes);
       });
-  }
+  });
 
-  handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const randomNum = Math.floor(Math.random() * this.state.allMemeImg.length);
-    const randoMemeImg = this.state.allMemeImg[randomNum].url;
-    this.setState({
-      randomImg: randoMemeImg,
-    });
-  }
+    const randomNum = Math.floor(Math.random() * allMemeImg.length);
+    const randoMemeImg = allMemeImg[randomNum].url;
+    setRandomImg(randoMemeImg);
+  };
 
-  handleChange(e) {
-    const { name, value } = e.target;
-    this.setState({
-      [name]: value,
-    });
-  }
+  return (
+    <div>
+      <form className='meme-form' onSubmit={handleSubmit}>
+        <input
+          type='text'
+          name='topText'
+          value={topText}
+          placeholder='Top Text'
+          onChange={(e) => setTopText(e.target.value)}
+        />
+        <input
+          type='text'
+          name='bottomText'
+          value={bottomText}
+          placeholder='Bottom Text'
+          onChange={(e) => setBottomText(e.target.value)}
+        />
+        <button>Gen</button>
+      </form>
 
-  render() {
-    return (
-      <div>
-        <form className='meme-form' onSubmit={this.handleSubmit}>
-          <input
-            type='text'
-            name='topText'
-            value={this.state.topText}
-            placeholder='Top Text'
-            onChange={this.handleChange}
-          />
-          <input
-            type='text'
-            name='bottomText'
-            value={this.state.bottomText}
-            placeholder='Bottom Text'
-            onChange={this.handleChange}
-          />
-          <button>Gen</button>
-        </form>
-
-        <div className='meme'>
-          <img src={this.state.randomImg} />
-          <h2 className='top'>{this.state.topText}</h2>
-          <h2 className='bottom'>{this.state.bottomText}</h2>
-        </div>
+      <div className='meme'>
+        <img src={randomImg} />
+        <h2 className='top'>{topText}</h2>
+        <h2 className='bottom'>{bottomText}</h2>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default MemeGenerator;
